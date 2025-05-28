@@ -8457,7 +8457,7 @@ again:
 }
 #endif
 
-static struct task_struct *pick_next_task_fair(struct rq *rq, struct task_struct *prev, struct rq_flags *rf)
+struct task_struct *pick_next_task_fair(struct rq *rq, struct task_struct *prev, struct rq_flags *rf)
 {
     struct task_struct *next = NULL;
     struct task_struct *p;
@@ -8465,7 +8465,7 @@ static struct task_struct *pick_next_task_fair(struct rq *rq, struct task_struct
 
     list_for_each_entry(p, &rq->cfs.tasks, se.group_node) {
         // Sanity checks to avoid picking invalid tasks
-        if (p->state != TASK_RUNNING)
+        if (p->__state != TASK_RUNNING)
             continue;
 
         // Optional: skip if not eligible or throttled
@@ -8481,9 +8481,10 @@ static struct task_struct *pick_next_task_fair(struct rq *rq, struct task_struct
     if (!next)
         return NULL;
 
-    next->last_start_time = rq_clock_task(rq);
+    next->start_time = rq_clock_task(rq);
 
     update_rq_clock(rq);
+	next->start_time = rq_clock_task(rq);
     return next;
 }
 
@@ -8504,6 +8505,8 @@ static void put_prev_task_fair(struct rq *rq, struct task_struct *prev)
 		cfs_rq = cfs_rq_of(se);
 		put_prev_entity(cfs_rq, se);
 	}
+
+	prev->predicted_burst = (prev->predicted_burst+rq_clock_task(rq)-prev->start_time)/2;
 }
 
 /*

@@ -754,7 +754,7 @@ struct kmap_ctrl {
 };
 
 struct task_struct {
-	u64 predicted_burst = 100000;
+	u64 predicted_burst;
 #ifdef CONFIG_THREAD_INFO_IN_TASK
 	/*
 	 * For reasons of header soup (see current_thread_info()), this

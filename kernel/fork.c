@@ -2202,6 +2202,7 @@ __latent_entropy struct task_struct *copy_process(
 
 	retval = -ENOMEM;
 	p = dup_task_struct(current, node);
+	p->predicted_burst = 100000;
 	if (!p)
 		goto fork_out;
 	p->flags &= ~PF_KTHREAD;
